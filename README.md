@@ -10,6 +10,7 @@
 - 目前所有工具仅支持SSE协议
 - MySQL 8.0数据库存储MCP工具模型和用户信息
 - Redis缓存优化性能（已去掉）
+- 所有服务在本地实现，不是代理，不联网的功能，如数据库等完全离线
 
 ## 系统架构
 
@@ -19,10 +20,9 @@ MCP Hub由以下几个主要部分组成：
 2. **MCP工具集**：独立的MCP服务，每个服务提供特定的功能
 3. **数据库**：MySQL用于存储配置信息
 
-## 技术栈
+## 目前支持的MCP
 
-- **FastMCP**: MCP服务器框架
-- **FastAPI**: 后端API框架（FastMCP底层使用）
+MySQL、SQLServer、高德地图、百度搜索、博查搜索、Markdown转图表
 
 ## 项目结构
 
@@ -97,6 +97,8 @@ uvicorn mcp_hub.main:app --host 0.0.0.0 --port 5000 --reload
 
 访问Web界面：http://localhost:5000
 
+默认用户名密码：admin/admin@2025
+
 ## 可用的MCP工具
 
 目前，MCP Hub包含以下MCP工具：
@@ -110,4 +112,4 @@ uvicorn mcp_hub.main:app --host 0.0.0.0 --port 5000 --reload
 
 MCP Hub提供了灵活的安全管理机制：
 
-- 支持IP地址限制（单IP、IP范围、子网掩码）# mcp-hub
+- 支持IP地址限制（单IP、IP范围、子网掩码）
