@@ -1,0 +1,456 @@
+{% extends "base.html" %}
+
+{% block title %}{{ tool.name }} - MCP Hub{% endblock %}
+
+{% block content %}
+<div class="tool-details">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-tools"></i> {{ tool.name }}</h2>
+        <div>
+            <a href="/mcp-tools" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> 返回列表
+            </a>
+            {% if tool.status == "running" %}
+            <a href="/mcp-tools/{{ tool.id }}/stop" class="btn btn-danger">
+                <i class="bi bi-stop-fill"></i> 停止
+            </a>
+            {% else %}
+            <a href="/mcp-tools/{{ tool.id }}/start" class="btn btn-success">
+                <i class="bi bi-play-fill"></i> 启动
+            </a>
+            {% endif %}
+            <a href="/mcp-tools/{{ tool.id }}/edit" class="btn btn-warning">
+                <i class="bi bi-pencil"></i> 编辑
+            </a>
+            <a href="/mcp-tools/{{ tool.id }}/security" class="btn btn-info">
+                <i class="bi bi-shield-lock"></i> 安全管理
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- 基本信息 -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0"><i class="bi bi-info-circle"></i> 基本信息</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-striped">
+                        <tbody>
+                            <tr>
+                                <th scope="row">ID</th>
+                                <td>{{ tool.id }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">名称</th>
+                                <td>{{ tool.name }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">描述</th>
+                                <td>{{ tool.description }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">模块路径</th>
+                                <td><code>{{ tool.module_path }}</code></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">端口</th>
+                                <td>{{ tool.port }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">状态</th>
+                                <td>
+                                    {% if tool.status == "running" %}
+                                    <span class="badge bg-success">运行中</span>
+                                    {% elif tool.status == "stopped" %}
+                                    <span class="badge bg-danger">已停止</span>
+                                    {% else %}
+                                    <span class="badge bg-warning">未知</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">已启用</th>
+                                <td>
+                                    {% if tool.enabled %}
+                                    <span class="badge bg-success">是</span>
+                                    {% else %}
+                                    <span class="badge bg-danger">否</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">自动启动</th>
+                                <td>
+                                    {% if tool.auto_start %}
+                                    <span class="badge bg-success">是</span>
+                                    {% else %}
+                                    <span class="badge bg-danger">否</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">创建时间</th>
+                                <td>{{ tool.created_at }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">更新时间</th>
+                                <td>{{ tool.updated_at or '-' }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 配置信息和Uvicorn配置 -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0"><i class="bi bi-gear"></i> 配置信息</h5>
+                </div>
+                <div class="card-body">
+                    <div class="config-json mb-4">
+                        <pre><code>{{ tool.config | tojson(indent=2) }}</code></pre>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="mt-4">
+                        <h5><i class="bi bi-server"></i> Uvicorn配置</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="fw-bold">是否使用Uvicorn：</label>
+                                    {% if tool.is_uvicorn %}
+                                        <span class="badge bg-success">已启用</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">已禁用</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="fw-bold">Worker数量：</label>
+                                    <span>{{ tool.worker }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="alert alert-info mb-0 no-auto-close">
+                            <i class="bi bi-info-circle"></i> 
+                            {% if tool.is_uvicorn %}
+                                当前工具使用Uvicorn模式启动，支持多进程，采用{{ tool.worker }}个worker进程。
+                            {% else %}
+                                当前工具使用传统模式启动，仅使用单进程运行。
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- uvicorn配置 -->
+    <div class="row">
+        <div class="col-12 mb-4 d-none">
+        </div>
+    </div>
+
+    <!-- 使用示例 -->
+    <div class="card mb-4">
+        <div class="card-header bg-success text-white">
+            <h5 class="card-title mb-0"><i class="bi bi-code-slash"></i> 使用示例</h5>
+        </div>
+        <div class="card-body">
+            {% if tool.usage_examples %}
+            <div class="tool-usage markdown-content">
+                <div id="markdown-content">{{ tool.usage_examples }}</div>
+            </div>
+            {% else %}
+            <p class="text-muted">暂无使用示例</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 安全规则 -->
+    <div class="card">
+        <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0"><i class="bi bi-shield-lock"></i> 安全规则</h5>
+            <a href="/mcp-tools/{{ tool.id }}/security" class="btn btn-sm btn-info">
+                <i class="bi bi-gear"></i> 高级安全管理
+            </a>
+        </div>
+        <div class="card-body">
+            {% if tool.security_rules %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">名称</th>
+                            <th scope="col">类型</th>
+                            <th scope="col">值</th>
+                            <th scope="col">状态</th>
+                            <th scope="col">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for rule in tool.security_rules %}
+                        <tr>
+                            <th scope="row">{{ rule.id }}</th>
+                            <td>{{ rule.name }}</td>
+                            <td>{{ rule.rule_type }}</td>
+                            <td><code>{{ rule.value }}</code></td>
+                            <td>
+                                {% if rule.enabled %}
+                                <span class="badge bg-success">已启用</span>
+                                {% else %}
+                                <span class="badge bg-danger">已禁用</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="/mcp-tools/security-rules/{{ rule.id }}/delete" class="btn btn-sm btn-danger delete-confirm" title="删除">
+                                    <i class="bi bi-trash"></i> 删除
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted">暂无安全规则</p>
+            {% endif %}
+
+            <button type="button" class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#addRuleModal">
+                <i class="bi bi-plus-circle"></i> 添加安全规则
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 添加安全规则模态框 -->
+<div class="modal fade" id="addRuleModal" tabindex="-1" aria-labelledby="addRuleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addRuleModalLabel">添加安全规则</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="/mcp-tools/{{ tool.id }}/security-rules" method="post">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="ruleName" class="form-label">规则名称</label>
+                        <input type="text" class="form-control" id="ruleName" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="ruleType" class="form-label">规则类型</label>
+                        <select class="form-select" id="ruleType" name="rule_type" required>
+                            <option value="all">全部 (允许所有IP)</option>
+                            <option value="single_ip">单个IP地址</option>
+                            <option value="ip_range">IP地址范围</option>
+                            <option value="subnet">子网</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="ruleValue" class="form-label">规则值</label>
+                        <input type="text" class="form-control" id="ruleValue" name="value" required
+                               placeholder="例如：0.0.0.0/0、192.168.1.1、192.168.1.0-192.168.1.255">
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="ruleEnabled" name="enabled" checked>
+                        <label class="form-check-label" for="ruleEnabled">启用规则</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="/static/css/github.min.css">
+<script src="/static/js/marked.min.js"></script>
+<script src="/static/js/highlight.min.js"></script>
+<script src="/static/js/json.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Markdown处理脚本已加载');
+    marked.setOptions({
+        breaks: true,
+        gfm: true,
+        pedantic: false,
+        mangle: false,
+        smartLists: true,
+        smartypants: false,
+        xhtml: false,
+        highlight: function(code, lang) {
+            if (lang && hljs.getLanguage(lang)) {
+                return hljs.highlight(code, {language: lang}).value;
+            }
+            return hljs.highlightAuto(code).value;
+        }
+    });
+    
+    const contentEl = document.getElementById('markdown-content');
+    if (contentEl) {
+        console.log('找到内容元素，开始处理Markdown');
+        const rawContent = contentEl.textContent || contentEl.innerText;
+        console.log('原始内容长度:', rawContent.length);
+        
+        const hasMarkdownCodeBlocks = rawContent.includes('```');
+        
+        if (hasMarkdownCodeBlocks) {
+            console.log('检测到Markdown格式的代码块，跳过预处理');
+            contentEl.innerHTML = marked.parse(rawContent);
+        } else {
+            console.log('未检测到Markdown代码块，使用预处理');
+            let processedContent = preprocessMarkdown(rawContent);
+            console.log('预处理后的内容长度:', processedContent.length);
+            contentEl.innerHTML = marked.parse(processedContent);
+        }
+        
+        document.querySelectorAll('pre code').forEach((block) => {
+            hljs.highlightElement(block);
+        });
+        console.log('代码高亮应用完成');
+    } else {
+        console.error('未找到内容元素 #markdown-content');
+    }
+
+    function preprocessMarkdown(content) {
+        const lines = content.split('\n');
+        let result = [];
+        let inCodeBlock = false;
+        let currentCodeLang = '';
+        let jsonBlockCount = 0;
+        
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i];
+            const trimmedLine = line.trim();
+            
+            if (trimmedLine.startsWith('#')) {
+                if (inCodeBlock) {
+                    result.push('```');
+                    inCodeBlock = false;
+                }
+                result.push(line);
+                continue;
+            }
+            
+            if (trimmedLine.includes('{') && !inCodeBlock && 
+                (trimmedLine.includes('"type":') || trimmedLine.includes('"mcpServers":'))) {
+                if (!inCodeBlock) {
+                    jsonBlockCount++;
+                    result.push('');
+                    result.push('```json');
+                    inCodeBlock = true;
+                    currentCodeLang = 'json';
+                }
+                result.push(line);
+                continue;
+            }
+            if (inCodeBlock && currentCodeLang === 'json' && trimmedLine.endsWith('}') && 
+                !trimmedLine.includes('{')) {
+                result.push(line);
+                result.push('```');
+                result.push('');
+                inCodeBlock = false;
+                continue;
+            }
+            
+            result.push(line);
+        }
+        if (inCodeBlock) {
+            result.push('```');
+        }
+        if (jsonBlockCount === 0) {
+            console.log('未找到JSON块，尝试强制检测');
+            return forceDetectJsonBlocks(content);
+        }
+        
+        return result.join('\n');
+    }
+
+    function forceDetectJsonBlocks(content) {
+        const jsonRegex = /(\{[^{}]*(\{[^{}]*\})[^{}]*\})/g;
+        const matches = content.match(jsonRegex);
+        
+        if (!matches || matches.length === 0) {
+            const simpleJsonRegex = /(\{[^{}]*\})/g;
+            const simpleMatches = content.match(simpleJsonRegex);
+            
+            if (!simpleMatches || simpleMatches.length === 0) {
+                console.log('未找到任何JSON对象');
+                return content;
+            }
+            
+            console.log('找到简单JSON对象:', simpleMatches.length);
+            return content.replace(simpleJsonRegex, function(match) {
+                return '\n```json\n' + match + '\n```\n';
+            });
+        }
+        
+        console.log('找到嵌套JSON对象:', matches.length);
+        return content.replace(jsonRegex, function(match) {
+            return '\n```json\n' + match + '\n```\n';
+        });
+    }
+});
+</script>
+
+<style>
+.markdown-content {
+    line-height: 1.6;
+}
+
+.markdown-content pre {
+    background-color: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow: auto;
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+.markdown-content code {
+    font-family: SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 85%;
+    padding: 0.2em 0.4em;
+    margin: 0;
+    background-color: rgba(175, 184, 193, 0.2);
+    border-radius: 6px;
+}
+
+.markdown-content pre code {
+    background-color: transparent;
+    padding: 0;
+    font-size: 100%;
+    white-space: pre;
+}
+
+.markdown-content h1, .markdown-content h2, .markdown-content h3 {
+    margin-top: 24px;
+    margin-bottom: 16px;
+    font-weight: 600;
+    line-height: 1.25;
+}
+
+.markdown-content p {
+    margin-top: 0;
+    margin-bottom: 16px;
+    white-space: pre-wrap;
+}
+
+.markdown-content blockquote {
+    padding: 0 1em;
+    color: #6a737d;
+    border-left: 0.25em solid #dfe2e5;
+    margin: 0 0 16px 0;
+}
+</style>
+{% endblock %} 

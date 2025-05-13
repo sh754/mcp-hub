@@ -1,0 +1,375 @@
+:root {
+  --primary-color: #2c3e50;
+  --secondary-color: #34495e;
+  --accent-color: #3498db;
+  --accent-hover: #2980b9;
+  --danger-color: #e74c3c;
+  --success-color: #2ecc71;
+  --warning-color: #f39c12;
+  --info-color: #3498db;
+  --text-color: #ecf0f1;
+  --text-muted: #95a5a6;
+  --border-color: #546e7a;
+  --card-bg: #1e272e;
+  --body-bg: #121212;
+  --nav-bg: #1a1a2e;
+  --footer-bg: #1a1a2e;
+  --input-bg: #2c3e50;
+  --input-color: #ecf0f1;
+  --input-border: #546e7a;
+  --dropdown-bg: #2c3e50;
+  --dropdown-hover: #34495e;
+  --box-shadow-color: rgba(0, 0, 0, 0.5);
+}
+
+body {
+  background-color: var(--body-bg);
+  color: var(--text-color);
+  font-family: 'Roboto', 'Segoe UI', Arial, sans-serif;
+  line-height: 1.6;
+}
+
+/* 导航栏 */
+.navbar {
+  background-color: var(--nav-bg) !important;
+  box-shadow: 0 2px 10px var(--box-shadow-color);
+  border: none;
+  padding: 0.7rem 1rem;
+}
+
+.navbar-brand {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.navbar-dark .navbar-nav .nav-link {
+  color: var(--text-color);
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.navbar-dark .navbar-nav .nav-link:hover,
+.navbar-dark .navbar-nav .nav-link.active {
+  background-color: var(--accent-color);
+  color: #ffffff;
+}
+
+/* 卡片 */
+.card {
+  background-color: var(--card-bg);
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px var(--box-shadow-color);
+  transition: transform 0.3s, box-shadow 0.3s;
+  margin-bottom: 1.5rem;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px var(--box-shadow-color);
+}
+
+.card-header {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid var(--border-color);
+  font-weight: 500;
+  padding: 1rem 1.25rem;
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+.card-footer {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-top: 1px solid var(--border-color);
+}
+
+/* 按钮 */
+.btn {
+  border-radius: 4px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 0.5rem 1rem;
+  transition: all 0.3s;
+  border: none;
+}
+
+.btn-primary {
+  background-color: var(--accent-color);
+}
+
+.btn-primary:hover {
+  background-color: var(--accent-hover);
+}
+
+.btn-danger {
+  background-color: var(--danger-color);
+}
+
+.btn-success {
+  background-color: var(--success-color);
+}
+
+.btn-warning {
+  background-color: var(--warning-color);
+}
+
+.btn-outline-primary {
+  border: 2px solid var(--accent-color);
+  color: var(--accent-color);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--accent-color);
+  color: white;
+}
+
+/* 表单 */
+.form-control, .form-select {
+  background-color: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--input-color);
+  border-radius: 4px;
+  padding: 0.75rem 1rem;
+}
+
+.form-control:focus, .form-select:focus {
+  background-color: var(--input-bg);
+  color: var(--input-color);
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25);
+}
+
+/* 表格 */
+.table {
+  color: var(--text-color);
+}
+
+.table-dark {
+  background-color: var(--card-bg);
+  color: var(--text-color);
+}
+
+.table th, .table td {
+  border-color: var(--border-color);
+  padding: 1rem;
+}
+
+.table thead th {
+  border-bottom: 2px solid var(--border-color);
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(52, 152, 219, 0.1);
+}
+
+/* 警告框 */
+.alert {
+  border: none;
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.alert-primary {
+  background-color: rgba(52, 152, 219, 0.2);
+  color: var(--info-color);
+}
+
+.alert-danger {
+  background-color: rgba(231, 76, 60, 0.2);
+  color: var(--danger-color);
+}
+
+.alert-success {
+  background-color: rgba(46, 204, 113, 0.2);
+  color: var(--success-color);
+}
+
+.alert-warning {
+  background-color: rgba(243, 156, 18, 0.2);
+  color: var(--warning-color);
+}
+
+/* 下拉菜单 */
+.dropdown-menu {
+  background-color: var(--dropdown-bg);
+  border: none;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px var(--box-shadow-color);
+  padding: 0.5rem 0;
+}
+
+.dropdown-item {
+  color: var(--text-color);
+  padding: 0.5rem 1.5rem;
+  transition: all 0.2s;
+}
+
+.dropdown-item:hover {
+  background-color: var(--dropdown-hover);
+  color: var(--text-color);
+}
+
+.dropdown-divider {
+  border-top: 1px solid var(--border-color);
+}
+
+/* 徽章 */
+.badge {
+  font-weight: 500;
+  padding: 0.35rem 0.65rem;
+  border-radius: 4px;
+}
+
+/* 分页 */
+.pagination .page-link {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+  color: var(--text-color);
+}
+
+.pagination .page-link:hover {
+  background-color: var(--accent-color);
+  color: white;
+}
+
+.pagination .page-item.active .page-link {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+/* 进度条 */
+.progress {
+  background-color: var(--secondary-color);
+  border-radius: 4px;
+  height: 8px;
+}
+
+.progress-bar {
+  background-color: var(--accent-color);
+}
+
+/* 工具提示和弹出框 */
+.tooltip, .popover {
+  --bs-tooltip-bg: var(--card-bg);
+  --bs-tooltip-color: var(--text-color);
+}
+
+/* 列表组 */
+.list-group-item {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+  color: var(--text-color);
+}
+
+/* 模态框 */
+.modal-content {
+  background-color: var(--card-bg);
+  border: none;
+  border-radius: 8px;
+}
+
+.modal-header {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.modal-footer {
+  border-top: 1px solid var(--border-color);
+}
+
+/* 页脚 */
+.footer {
+  background-color: var(--footer-bg) !important;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border-color);
+  margin-top: 3rem;
+}
+
+/* 自定义滚动条 */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--body-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--secondary-color);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--accent-color);
+}
+
+/* 动画效果 */
+.fade-in {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* 响应式调整 */
+@media (max-width: 767.98px) {
+  .card {
+    margin-bottom: 1rem;
+  }
+  
+  .navbar-nav {
+    margin-top: 0.5rem;
+  }
+}
+
+/* 自定义布局元素 */
+.dashboard-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-card .card-body {
+  flex: 1;
+}
+
+.icon-lg {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: var(--accent-color);
+}
+
+.status-indicator {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 0.5rem;
+}
+
+.status-indicator.active {
+  background-color: var(--success-color);
+}
+
+.status-indicator.inactive {
+  background-color: var(--danger-color);
+}
+
+/* 代码样式 */
+pre, code {
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+  padding: 0.2em 0.4em;
+  font-family: 'Fira Code', Consolas, Monaco, 'Andale Mono', monospace;
+}
+
+pre {
+  padding: 1rem;
+  overflow-x: auto;
+} 

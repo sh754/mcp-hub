@@ -1,0 +1,45 @@
+@font-face {
+  font-display: block;
+  font-family: "bootstrap-icons";
+  src: url("../fonts/bootstrap-icons.woff2") format("woff2"),
+       url("../fonts/bootstrap-icons.woff") format("woff");
+}
+
+.bi::before,
+[class^="bi-"]::before,
+[class*=" bi-"]::before {
+  display: inline-block;
+  font-family: bootstrap-icons !important;
+  font-style: normal;
+  font-weight: normal !important;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  vertical-align: -.125em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 常用图标示例 */
+.bi-person::before { content: "\f4ce"; }
+.bi-lock::before { content: "\f47b"; }
+.bi-hdd-network::before { content: "\f3f7"; }
+.bi-shield-check::before { content: "\f730"; }
+.bi-cpu::before { content: "\f2ec"; }
+.bi-graph-up::before { content: "\f3d7"; }
+.bi-people::before { content: "\f4cf"; }
+.bi-box-arrow-in-right::before { content: "\f11c"; }
+.bi-speedometer2::before { content: "\f75e"; }
+.bi-tools::before { content: "\f775"; }
+.bi-shield-lock::before { content: "\f732"; }
+.bi-memory::before { content: "\f492"; }
+.bi-hdd::before { content: "\f3f3"; }
+.bi-activity::before { content: "\f0c"; }
+.bi-calendar-x::before { content: "\f1a3"; }
+.bi-door-open::before { content: "\f289"; }
+.bi-clock-history::before { content: "\f234"; }
+.bi-lightning::before { content: "\f46c"; }
+.bi-plus-circle::before { content: "\f4f1"; }
+.bi-play-fill::before { content: "\f4da"; }
+.bi-stop-fill::before { content: "\f774"; }
+.bi-arrow-clockwise::before { content: "\f089"; }

@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  mcphub_app:
+    container_name: mcphub_app
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    ports:
+      - "5000-5100:5000-5100"
+    depends_on:
+      mcphub_sql:
+        condition: service_healthy
+    volumes:
+      - /opt/mcphub/data/logs:/app/logs
+    environment:
+      TZ: Asia/Shanghai
+    restart: unless-stopped
+    networks:
+      - mcphub_network
+
+  mcphub_sql:
+    container_name: mcphub_sql
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: mcphub
+      MYSQL_ROOT_PASSWORD: Intop123*hh
+      TZ: Asia/Shanghai
+    volumes:
+      - /opt/mcphub/data/mysql:/var/lib/mysql
+    command:
+      - --default-authentication-plugin=mysql_native_password
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
+    restart: unless-stopped
+    networks:
+      - mcphub_network
+
+networks:
+  mcphub_network:
+    name: mcphub_network

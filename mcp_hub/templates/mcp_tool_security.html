@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+
+{% block title %}{{ tool.name }} - 安全规则管理 - MCP Hub{% endblock %}
+
+{% block content %}
+<div class="tool-security">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-shield-lock"></i> {{ tool.name }} - 安全规则管理</h2>
+        <div>
+            <a href="/mcp-tools/{{ tool.id }}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> 返回工具详情
+            </a>
+            <a href="/security" class="btn btn-info">
+                <i class="bi bi-gear"></i> 全局安全设置
+            </a>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="card-title mb-0"><i class="bi bi-info-circle"></i> 工具基本信息</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>ID:</strong> {{ tool.id }}</p>
+                    <p><strong>名称:</strong> {{ tool.name }}</p>
+                    <p><strong>模块路径:</strong> <code>{{ tool.module_path }}</code></p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>端口:</strong> {{ tool.port }}</p>
+                    <p><strong>状态:</strong> 
+                        {% if tool.status == "running" %}
+                        <span class="badge bg-success">运行中</span>
+                        {% elif tool.status == "stopped" %}
+                        <span class="badge bg-danger">已停止</span>
+                        {% else %}
+                        <span class="badge bg-warning">未知</span>
+                        {% endif %}
+                    </p>
+                    <p><strong>已启用:</strong>
+                        {% if tool.enabled %}
+                        <span class="badge bg-success">是</span>
+                        {% else %}
+                        <span class="badge bg-danger">否</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-warning text-dark">
+            <h5 class="card-title mb-0"><i class="bi bi-shield-lock"></i> 现有安全规则</h5>
+        </div>
+        <div class="card-body">
+            {% if tool.security_rules %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">名称</th>
+                            <th scope="col">类型</th>
+                            <th scope="col">值</th>
+                            <th scope="col">状态</th>
+                            <th scope="col">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for rule in tool.security_rules %}
+                        <tr>
+                            <th scope="row">{{ rule.id }}</th>
+                            <td>{{ rule.name }}</td>
+                            <td>
+                                {% if rule.rule_type == "all" %}
+                                <span class="badge bg-primary">全部IP</span>
+                                {% elif rule.rule_type == "single_ip" %}
+                                <span class="badge bg-info">单个IP</span>
+                                {% elif rule.rule_type == "ip_range" %}
+                                <span class="badge bg-secondary">IP范围</span>
+                                {% elif rule.rule_type == "subnet" %}
+                                <span class="badge bg-dark">子网</span>
+                                {% endif %}
+                            </td>
+                            <td><code>{{ rule.value }}</code></td>
+                            <td>
+                                {% if rule.enabled %}
+                                <span class="badge bg-success">已启用</span>
+                                {% else %}
+                                <span class="badge bg-danger">已禁用</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="/mcp-tools/security-rules/{{ rule.id }}/delete" class="btn btn-sm btn-danger delete-confirm" title="删除" 
+                                   onclick="return confirm('确定要删除此安全规则吗？');">
+                                    <i class="bi bi-trash"></i> 删除
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-warning">
+                <i class="bi bi-exclamation-triangle"></i> 警告：当前工具没有配置任何安全规则，这可能会导致安全风险。
+                建议至少添加一条安全规则来限制访问。
+            </div>
+            <p class="text-muted">暂无安全规则，请使用下方表单添加。</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-success text-white">
+            <h5 class="card-title mb-0"><i class="bi bi-plus-circle"></i> 添加安全规则</h5>
+        </div>
+        <div class="card-body">
+            <form action="/mcp-tools/{{ tool.id }}/security-rules" method="post">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="ruleName" class="form-label">规则名称</label>
+                        <input type="text" class="form-control" id="ruleName" name="name" required
+                               placeholder="例如：允许本地访问、允许公司网络">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="ruleType" class="form-label">规则类型</label>
+                        <select class="form-select" id="ruleType" name="rule_type" required>
+                            <option value="all">全部 (允许所有IP)</option>
+                            <option value="single_ip">单个IP地址</option>
+                            <option value="ip_range">IP地址范围</option>
+                            <option value="subnet">子网</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="ruleValue" class="form-label">规则值</label>
+                    <input type="text" class="form-control" id="ruleValue" name="value" required
+                           placeholder="例如：0.0.0.0/0、192.168.1.1、192.168.1.0-192.168.1.255">
+                    <div class="form-text" id="ruleValueHelp">
+                        <ul class="mb-0">
+                            <li>全部: 使用 0.0.0.0/0 表示允许所有IP</li>
+                            <li>单个IP: 例如 127.0.0.1 或 192.168.1.100</li>
+                            <li>IP范围: 使用起始-结束格式，例如 192.168.1.1-192.168.1.100</li>
+                            <li>子网: 使用CIDR表示法，例如 192.168.1.0/24</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="ruleEnabled" name="enabled" checked>
+                    <label class="form-check-label" for="ruleEnabled">启用规则</label>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> 添加规则
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card mt-4">
+        <div class="card-header bg-info text-white">
+            <h5 class="card-title mb-0"><i class="bi bi-info-circle"></i> 安全说明</h5>
+        </div>
+        <div class="card-body">
+            <h6>安全规则工作原理：</h6>
+            <ul>
+                <li>安全规则用于限制可以访问此MCP工具的IP地址</li>
+                <li>如果没有安全规则，系统默认允许所有IP访问（不推荐）</li>
+                <li>至少配置一条规则来限制访问，提高安全性</li>
+                <li>多条规则之间为"或"关系，满足任一规则即可访问</li>
+                <li>请勿使用过于宽松的规则在生产环境中</li>
+            </ul>
+            <h6>最佳实践：</h6>
+            <ul>
+                <li>生产环境：严格限制只允许特定IP或IP段访问</li>
+                <li>测试环境：可以相对宽松，但仍应限制在可信网络范围内</li>
+                <li>开发环境：可以允许更广泛的访问，但依然建议添加基本限制</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ruleTypeSelect = document.getElementById('ruleType');
+    const ruleValueInput = document.getElementById('ruleValue');
+    
+    ruleTypeSelect.addEventListener('change', function() {
+        switch(this.value) {
+            case 'all':
+                ruleValueInput.placeholder = '0.0.0.0/0';
+                break;
+            case 'single_ip':
+                ruleValueInput.placeholder = '例如: 127.0.0.1';
+                break;
+            case 'ip_range':
+                ruleValueInput.placeholder = '例如: 192.168.1.1-192.168.1.100';
+                break;
+            case 'subnet':
+                ruleValueInput.placeholder = '例如: 192.168.1.0/24';
+                break;
+        }
+    });
+});
+</script>
+{% endblock %} 

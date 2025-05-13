@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}编辑 {{ tool.name if tool else '新建MCP工具' }} - MCP Hub{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-{{ 'pencil' if tool else 'plus-circle' }}"></i> {{ '编辑MCP工具' if tool else '添加新MCP工具' }}</h2>
+    <a href="{{ '/mcp-tools/' + tool.id|string if tool else '/mcp-tools' }}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> 返回{{ '详情' if tool else '列表' }}
+    </a>
+</div>
+
+<div class="card tool-details">
+    <div class="card-header bg-primary text-white">
+        <h5 class="card-title mb-0"><i class="bi bi-gear"></i> {{ '编辑' if tool else '创建' }}MCP工具</h5>
+    </div>
+    <div class="card-body">
+        <form method="post" action="{{ '/mcp-tools/' + tool.id|string if tool else '/mcp-tools' }}">
+            <div class="row">
+                <div class="col-md-6">
+                    <h3>基本信息</h3>
+                    
+                    <div class="mb-3">
+                        <label for="name" class="form-label">名称 *</label>
+                        <input type="text" class="form-control" id="name" name="name" value="{{ tool.name if tool else '' }}" required>
+                        <div class="form-text">MCP工具的唯一名称</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">描述</label>
+                        <textarea class="form-control" id="description" name="description" rows="3">{{ tool.description if tool else '' }}</textarea>
+                        <div class="form-text">MCP工具的简要描述</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="module_path" class="form-label">模块路径 *</label>
+                        <input type="text" class="form-control" id="module_path" name="module_path" value="{{ tool.module_path if tool else '' }}" required placeholder="例如: mcp_tools.mysql">
+                        <div class="form-text">MCP工具的Python模块路径</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="port" class="form-label">端口 *</label>
+                        <input type="number" class="form-control" id="port" name="port" value="{{ tool.port if tool else '' }}" required min="1000" max="65535">
+                        <div class="form-text">MCP工具监听的端口号</div>
+                    </div>
+                    
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="enabled" name="enabled" {% if not tool or tool.enabled %}checked{% endif %}>
+                        <label class="form-check-label" for="enabled">启用</label>
+                        <div class="form-text">是否启用此MCP工具</div>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="auto_start" name="auto_start" {% if tool and tool.auto_start %}checked{% endif %}>
+                        <label class="form-check-label" for="auto_start">自动启动</label>
+                        <div class="form-text">后台自动启动，如果启用，那么每次启动MCP Hub都会自动启动此工具，并在子进程崩溃的时候自动拉起，请在重要MCP上启动，防止资源浪费</div>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="is_uvicorn" name="is_uvicorn" {% if not tool or tool.is_uvicorn %}checked{% endif %}>
+                        <label class="form-check-label" for="is_uvicorn">使用Uvicorn</label>
+                        <div class="form-text">是否使用Uvicorn启动（支持多进程）</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="worker" class="form-label">Worker数量</label>
+                        <input type="number" class="form-control" id="worker" name="worker" value="{{ tool.worker if tool else 2 }}" min="1" max="32">
+                        <div class="form-text">Uvicorn worker进程数量（仅当启用Uvicorn时有效）</div>
+                    </div>
+                    
+                    <div class="card border-info mb-3 no-auto-close">
+                        <div class="card-header bg-info text-white">
+                            <h6 class="card-title mb-0"><i class="bi bi-info-circle"></i> Uvicorn配置说明</h6>
+                        </div>
+                        <div class="card-body">
+                            <ul class="mb-0">
+                                <li><strong>Uvicorn模式</strong> - 使用Uvicorn服务器启动工具，支持更高性能和并发请求处理</li>
+                                <li><strong>Worker数量</strong> - 设置工作进程数量，决定同时处理请求的能力：
+                                    <ul>
+                                        <li>值为 <strong>1</strong>: 单进程模式，资源占用低，适合低负载场景</li>
+                                        <li>值为 <strong>2-4</strong>: 适合一般负载，平衡性能和资源占用</li>
+                                        <li>值为 <strong>≥5</strong>: 高并发模式，适合大量请求，但会消耗更多资源</li>
+                                    </ul>
+                                </li>
+                                <li>建议: 根据服务器CPU核心数来设置，如果是大规模使用的MCP工具，设置为<strong>CPU核心数的一半到三分之二</strong>以获取最佳性能</li>
+                                <li>警告: 设置过多worker会占用大量内存，请根据服务器资源合理配置！非核心应用建议关闭Uvicorn或者设置为2-4</li>
+                                <li>错误处理:如果开启uvicorn无法启动或者报错，那么就关闭了，有的MCP工具可能没适配好uvicorn，FastMCP虽然支持uvicorn</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <h3>高级设置</h3>
+                    
+                    <div class="mb-3">
+                        <label for="config" class="form-label">配置 (JSON)</label>
+                        <textarea class="form-control" id="config-json" name="config" rows="8">{{ tool.config | tojson(indent=2) if tool and tool.config else '{}' }}</textarea>
+                        <div class="form-text">MCP工具的配置选项，使用JSON格式</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="usage_examples" class="form-label">使用示例</label>
+                        <textarea class="form-control" id="usage_examples" name="usage_examples" rows="8">{{ tool.usage_examples if tool else '' }}</textarea>
+                        <div class="form-text">MCP工具的使用示例，支持Markdown格式</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-4 text-center">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-save"></i> 保存
+                </button>
+                <a href="{{ '/mcp-tools/' + tool.id|string if tool else '/mcp-tools' }}" class="btn btn-secondary">
+                    <i class="bi bi-x-circle"></i> 取消
+                </a>
+                {% if tool %}
+                <a href="/mcp-tools/{{ tool.id }}/delete" class="btn btn-danger delete-confirm">
+                    <i class="bi bi-trash"></i> 删除
+                </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 
